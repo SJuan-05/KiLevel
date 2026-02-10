@@ -48,9 +48,10 @@ class ProtocolController extends Controller
     public function start($id)
     {
         $user = Auth::user();
-        
-        // 1. Cleanup: Detach any existing uncompleted daily missions to avoid "ghost" protocols
-        $user->missions()->where('type', 'daily')->wherePivot('completed', false)->detach();
+
+        // 1. Cleanup: Detach ONLY the current active daily mission, leaving personalized trainings untouched
+        $currentDailies = $user->activeMission()->pluck('missions.id');
+        $user->missions()->detach($currentDailies);
 
         // 2. Find a random training of the same difficulty
         $mission = Mission::findOrFail($id);

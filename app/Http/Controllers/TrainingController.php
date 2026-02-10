@@ -102,8 +102,9 @@ class TrainingController extends Controller
         }
 
         if ($mission && $training) {
-            // Cleanup: Detach any previous uncompleted program missions to avoid duplicates
-            $user->missions()->where('missions.type', 'program')->wherePivot('completed', false)->detach();
+            // Cleanup: Detach ONLY previous uncompleted programs, keeping daily protocols intact
+            $currentPrograms = $user->activePrograms()->pluck('missions.id');
+            $user->missions()->detach($currentPrograms);
 
             $user->missions()->attach($mission->id, [
                 'expires_at' => Carbon::now()->addYears(10),
