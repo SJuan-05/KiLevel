@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Mission;
 use App\Models\Reward;
 use App\Models\Level;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -164,12 +165,12 @@ class User extends Authenticatable
      */
     public function getStreakAttribute(): int
     {
-        // Obtener fechas de misiones completadas (únicas por día)
-        $dates = $this->missions()
-            ->wherePivot('completed', true)
-            ->orderBy('user_mission.updated_at', 'desc')
-            ->get()
-            ->pluck('pivot.updated_at')
+        // 1. Obtener fechas únicas de misiones completadas (orden descendente)
+        $dates = DB::table('user_mission')
+            ->where('user_id', $this->id)
+            ->where('completed', true)
+            ->orderBy('updated_at', 'desc')
+            ->pluck('updated_at')
             ->map(function ($date) {
                 return \Carbon\Carbon::parse($date)->format('Y-m-d');
             })
@@ -180,37 +181,26 @@ class User extends Authenticatable
             return 0;
         }
 
-        $streak = 0;
-        $today = \Carbon\Carbon::today();
-        $yesterday = \Carbon\Carbon::yesterday();
+        $today = \Carbon\Carbon::today()->format('Y-m-d');
+        $yesterday = \Carbon\Carbon::yesterday()->format('Y-m-d');
 
-        // Comprobar si entrenó hoy o ayer para mantener la racha viva
-        $lastTraining = \Carbon\Carbon::parse($dates[0]);
-        if (!$lastTraining->isSameDay($today) && !$lastTraining->isSameDay($yesterday)) {
+        // 2. Si el último entrenamiento no fue ni hoy ni ayer, la racha es 0
+        if ($dates[0] !== $today && $dates[0] !== $yesterday) {
             return 0;
         }
 
-        // Contar días consecutivos
-        for ($i = 0; $i < $dates->count(); $i++) {
-            $currentDate = \Carbon\Carbon::parse($dates[$i]);
-            
-            // Esperamos que la fecha sea hoy, o ayer, o el día anterior al previo...
-            $expectedDate = $i === 0 ? $currentDate : \Carbon\Carbon::parse($dates[$i-1])->subDay();
-            
-            // Ajuste para el inicio: si la primera fecha es hoy, todo bien. Si es ayer, también cuenta como 1.
-            // La lógica simplificada:
-            if ($i == 0) {
-                $streak++;
-                continue;
-            }
+        // 3. Contar días seguidos
+        $streak = 1;
+        for ($i = 0; $i < $dates->count() - 1; $i++) {
+            $current = \Carbon\Carbon::parse($dates[$i]);
+            $next = \Carbon\Carbon::parse($dates[$i + 1]);
 
-            $prevDate = \Carbon\Carbon::parse($dates[$i-1]);
-            
-            // Si la diferencia es de 1 día, incrementamos la racha
-            if ($currentDate->diffInDays($prevDate) === 1) {
+            // Si la diferencia es de exactamente un día, incrementamos
+            if ((int) abs($current->diffInDays($next)) === 1) {
                 $streak++;
             } else {
-                break; 
+                // Si hay un hueco de más de un día, paramos
+                break;
             }
         }
 
