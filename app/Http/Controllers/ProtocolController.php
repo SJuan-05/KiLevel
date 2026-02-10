@@ -49,12 +49,10 @@ class ProtocolController extends Controller
     {
         $user = Auth::user();
         
-        // Verificar si ya tiene una activa
-        if ($user->activeMission()->exists()) {
-            return back()->with('error', 'Ya tienes un protocolo activo. Complétalo o espera a que expire.');
-        }
+        // 1. Cleanup: Detach any existing uncompleted daily missions to avoid "ghost" protocols
+        $user->missions()->where('type', 'daily')->wherePivot('completed', false)->detach();
 
-        // Buscar un entrenamiento aleatorio de la misma dificultad
+        // 2. Find a random training of the same difficulty
         $mission = Mission::findOrFail($id);
         
         // Search for a random training of the same difficulty (Excluding Race-Specific Programs)

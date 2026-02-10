@@ -102,13 +102,14 @@ class TrainingController extends Controller
         }
 
         if ($mission && $training) {
-            // Force detach any previous active program of the SAME training to avoid integrity issues? 
-            // Better to just attach as a new instance.
+            // Cleanup: Detach any previous uncompleted program missions to avoid duplicates
+            $user->missions()->where('missions.type', 'program')->wherePivot('completed', false)->detach();
+
             $user->missions()->attach($mission->id, [
                 'expires_at' => Carbon::now()->addYears(10),
                 'completed' => false,
                 'training_id' => $training->id,
-                'exercises_progress' => json_encode([]), // Initialize as empty array
+                'exercises_progress' => json_encode([]), 
             ]);
 
             return redirect()->route('training.show', $training->id)
