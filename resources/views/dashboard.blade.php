@@ -364,6 +364,7 @@
                     <i class="bi bi-graph-up-arrow stat-bg-icon"></i>
                     <div class="d-flex justify-content-between align-items-baseline">
                         <div class="stat-label">Progreso Actual</div>
+                        <div class="badge bg-success text-black fw-black px-2 py-1" style="font-size: 0.7rem;">NIVEL {{ $user->level ?? 1 }}</div>
                     </div>
                     <div class="stat-value level-val">{{ $user->xp }} <span class="fs-6 text-white-50">XP</span></div>
                     @php 

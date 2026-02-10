@@ -142,15 +142,22 @@ class User extends Authenticatable
      */
     public function xpPercent(): float
     {
-        $next = Level::where('level_number', ($this->level ?? 0) + 1)->first();
-        if (! $next) return 100.0;
-
-        $currentXp = (int) ($this->xp ?? 0);
-        $needed = (int) $next->xp_required;
-        if ($needed <= 0) return 100.0;
-
-        $percent = ($currentXp / $needed) * 100;
-        return (float) min(100, $percent);
+        $currentLvl = Level::where('level_number', $this->level ?? 1)->first();
+        $nextLvl = Level::where('level_number', ($this->level ?? 1) + 1)->first();
+        
+        if (!$nextLvl) return 100.0;
+        
+        $currentXp = $this->xp ?? 0;
+        $minXp = $currentLvl ? $currentLvl->xp_required : 0;
+        $maxXp = $nextLvl->xp_required;
+        
+        $range = $maxXp - $minXp;
+        if ($range <= 0) return 0.0;
+        
+        $relativeXp = $currentXp - $minXp;
+        $percent = ($relativeXp / $range) * 100;
+        
+        return (float) max(0, min(100, $percent));
     }
     /**
      * Calcula la racha de días consecutivos entrenando.

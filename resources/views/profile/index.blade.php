@@ -205,11 +205,17 @@
 
                 <div class="row justify-content-center">
                     <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-end mb-1">
+                            <div class="text-white-50 small font-monospace">NIVEL {{ $user->level ?? 1 }}</div>
+                            @php $remaining = $user->xpToNextLevel(); @endphp
+                            <div class="text-white-50 small font-monospace">{{ $remaining !== null ? number_format($remaining) . ' XP RESTANTE' : 'MÁXIMO NIVEL' }}</div>
+                        </div>
                         <div class="xp-container">
                             <div class="xp-fill" style="width: {{ $progress }}%"></div>
                         </div>
                         <div class="d-flex justify-content-between small text-white-50 font-monospace">
-                            <span>XP: {{ $user->xp }}</span><span>NEXT: 1000</span>
+                            <span>XP TOTAL: {{ number_format($user->xp) }}</span>
+                            <span>{{ round($progress, 1) }}%</span>
                         </div>
                     </div>
                 </div>

@@ -22,9 +22,8 @@ class ProfileController extends Controller
 
     private function showProfile($user)
     {
-        // Calculamos progreso (Ej: 1000 XP para subir de nivel)
-        $xpNextLevel = 1000;
-        $progress = ($user->xp / $xpNextLevel) * 100;
+        // Dynamic progress calculation
+        $progress = $user->xpPercent();
 
         // Lista base de títulos + desbloqueados
         $defaultTitles = ['Aprendiz Tortuga', 'Guerrero Z', 'Super Saiyan'];
