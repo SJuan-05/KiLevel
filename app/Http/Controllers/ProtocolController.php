@@ -57,32 +57,21 @@ class ProtocolController extends Controller
         // Buscar un entrenamiento aleatorio de la misma dificultad
         $mission = Mission::findOrFail($id);
         
-        // Intentar encontrar un entrenamiento que coincida con la raza del usuario
-        $trainingQuery = Training::where('difficulty', $mission->difficulty);
-
-        if ($user->race) {
-            // Si el usuario tiene raza, intentamos buscar entrenamientos que contengan el nombre de la raza en el título
-            // (e.g. "Saiyan: ...", "Human: ...")
-            // Priorizamos coincidencia exacta, si no hay, fallback a cualquiera de esa dificultad
-            $raceTraining = (clone $trainingQuery)
-                ->where('title', 'like', ucfirst($user->race) . '%')
-                ->inRandomOrder()
-                ->first();
-            
-            if ($raceTraining) {
-                $training = $raceTraining;
-            } else {
-                $training = $trainingQuery->inRandomOrder()->first();
-            }
-        } else {
-            $training = $trainingQuery->inRandomOrder()->first();
-        }
+        // Search for a random training of the same difficulty (Excluding Race-Specific Programs)
+        $training = Training::where('difficulty', $mission->difficulty)
+            ->where('title', 'not like', 'Saiyan%')
+            ->where('title', 'not like', 'Namek%')
+            ->where('title', 'not like', 'Frost%')
+            ->where('title', 'not like', 'Human%')
+            ->inRandomOrder()
+            ->first();
         
         // Asignar misión por 24 horas + entrenamiento
         $user->missions()->attach($id, [
             'expires_at' => Carbon::now()->addHours(24),
             'completed' => false,
             'training_id' => $training ? $training->id : null,
+            'exercises_progress' => json_encode([]),
         ]);
 
         return back()->with('success', '¡Protocolo iniciado! Entrenamiento asignado: ' . ($training ? $training->title : 'Estándar'));

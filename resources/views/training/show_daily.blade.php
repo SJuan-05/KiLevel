@@ -121,7 +121,6 @@
 
     <div class="daily-hero">
         <div class="d-flex justify-content-between px-4 pt-3">
-        <div class="d-flex justify-content-between px-4 pt-3">
             <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-house-door"></i> REGRESAR AL INICIO
             </a>
@@ -163,6 +162,8 @@
             </a>
         </div>
     </form>
+    
+    <script>
 
         document.addEventListener('DOMContentLoaded', () => {
             validate(false); // Check initial state without confetti

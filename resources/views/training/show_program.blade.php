@@ -9,7 +9,7 @@
         if (str_contains($title, 'SAIYAN')) { $raceColor = 'warning'; }
         elseif (str_contains($title, 'NAMEK')) { $raceColor = 'success'; }
         elseif (str_contains($title, 'FROST')) { $raceColor = 'info'; }
-        elseif (str_contains($title, 'HUMANA')) { $raceColor = 'primary'; }
+        elseif (str_contains($title, 'HUMAN')) { $raceColor = 'primary'; }
 
         $accent = "var(--bs-$raceColor)";
     @endphp

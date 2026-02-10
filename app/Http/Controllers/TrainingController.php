@@ -36,7 +36,7 @@ class TrainingController extends Controller
         
         if ($mission && $mission->type === 'program') {
             $isProgram = true;
-        } elseif (preg_match('/(CLASE|SAIYAN|NAMEK|FROST|HUMANA)/i', $training->title)) {
+        } elseif (preg_match('/(CLASE|SAIYAN|NAMEK|FROST|HUMAN|HUMANA)/i', $training->title)) {
             $isProgram = true;
         }
 
@@ -71,74 +71,52 @@ class TrainingController extends Controller
         ];
         $difficulty = $difficultyMap[$request->race] ?? 'easy';
 
-        $difficulty = $difficultyMap[$request->race] ?? 'easy';
-
         // 1.5 SINGLE TRAINING PER RACE CHECK
-        // Check if user already has an active training for this SPECIFIC race
-        $existing = $user->activeMissions()->get()->filter(function($m) use ($request) {
+        // Check if user already has an active PROGRAM mission for this SPECIFIC race
+        $existing = $user->activePrograms()->get()->filter(function($m) use ($request) {
             $t = \App\Models\Training::find($m->pivot->training_id);
-            return $t && str_starts_with($t->title, ucfirst($request->race));
+            return $t && preg_match('/' . $request->race . '/i', $t->title);
         })->first();
 
         if ($existing) {
-             // UPDATE: Ensure it is marked as unlimited (in case it was a daily before)
-             // Use 10 years to avoid MySQL TIMESTAMP 2038 limit
-             $user->missions()->updateExistingPivot($existing->id, [
-                 'expires_at' => \Carbon\Carbon::now()->addYears(10)
-             ]);
-
              return redirect()->route('training.show', $existing->pivot->training_id)
                 ->with('info', 'Ya tienes un entrenamiento de clase ' . ucfirst($request->race) . ' activo. ¡Continúa tu progreso!');
         }
 
         // 2. Find the corresponding PROGRAM Mission
-        // We look for missions with type='program' and title matching race
-        // Titles in Seeder: "CLASE SAIYAN...", "CLASE HUMANA..."
-        
         $mission = Mission::program()
             ->where('title', 'like', '%CLASE ' . strtoupper($request->race) . '%')
             ->first();
 
-        // Fallback: If no specific mission, grab any 'program' mission or even a 'daily' one if desperate (but avoid daily)
         if (!$mission) {
-            // Create one on the fly? Or fail.
-            // Let's grab one by difficulty as fallback but forcing type='program' (which might be empty if seeded wrong)
              $mission = Mission::program()->where('difficulty', $difficulty)->first();
         }
 
         // 3. Find a Training specific to that race
-        // We look for title starting with Race name (e.g. "Saiyan: ...")
         $training = Training::where('title', 'like', ucfirst($request->race) . '%')
             ->inRandomOrder()
             ->first();
 
-        // Fallback if no specific race training found
         if (!$training) {
             $training = Training::where('difficulty', $difficulty)->inRandomOrder()->first();
         }
 
         if ($mission && $training) {
-            // 4. Assign to User (Pivot)
-            // Detach any existing active missions to avoid conflicts, or just add new one
-            // Let's assume we want to SET this as the active one.
-            
-            // Optional: User might want to complete previous one first? 
-            // For now, we force start this new path.
-            
-            // Check if already has THIS specific mission active? 
-            // We just attach a new instance.
+            // Force detach any previous active program of the SAME training to avoid integrity issues? 
+            // Better to just attach as a new instance.
             $user->missions()->attach($mission->id, [
-                'expires_at' => Carbon::now()->addYears(10), // Unlimited time (Safe for MySQL TIMESTAMP)
+                'expires_at' => Carbon::now()->addYears(10),
                 'completed' => false,
                 'training_id' => $training->id,
+                'exercises_progress' => json_encode([]), // Initialize as empty array
             ]);
 
             return redirect()->route('training.show', $training->id)
                 ->with('success', '¡Protocolo Iniciado! Tu entrenamiento de clase ' . ucfirst($request->race) . ' está listo.');
         }
 
-        // Fallback if something fails (shouldnt happen with seeded data)
-        return redirect()->route('dashboard')->with('success', 'Raza seleccionada. Ve a Protocolos para iniciar.');
+        // Fallback
+        return redirect()->route('dashboard')->with('error', 'No se pudo iniciar el protocolo. Verifica la base de datos.');
     }
 
     public function toggleExercise(Request $request, $id)

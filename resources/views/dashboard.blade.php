@@ -437,9 +437,12 @@
                                     @php
                                         $dTraining = \App\Models\Training::find($activeDaily->pivot->training_id);
                                         $dTotal = is_array($dTraining->exercises) ? count($dTraining->exercises) : 0;
-                                        $dCompleted = $activeDaily->pivot->exercises_progress 
-                                            ? count(json_decode($activeDaily->pivot->exercises_progress, true)) 
-                                            : 0;
+                                        $dProg = $activeDaily->pivot->exercises_progress;
+                                        $dCompleted = 0;
+                                        if ($dProg) {
+                                            $dDecoded = json_decode($dProg, true);
+                                            $dCompleted = is_array($dDecoded) ? count($dDecoded) : 0;
+                                        }
                                         $dPercent = $dTotal > 0 ? round(($dCompleted / $dTotal) * 100) : 0;
                                     @endphp
 
@@ -486,10 +489,15 @@
                 @foreach($activeTrainings as $trainingMission)
                      @php
                         $training = \App\Models\Training::find($trainingMission->pivot->training_id);
+                        if (!$training) continue;
+
                         $totalExercises = is_array($training->exercises) ? count($training->exercises) : 0;
-                        $completedExercises = $trainingMission->pivot->exercises_progress 
-                            ? count(json_decode($trainingMission->pivot->exercises_progress, true)) 
-                            : 0;
+                        $prog = $trainingMission->pivot->exercises_progress;
+                        $completedExercises = 0;
+                        if ($prog) {
+                            $decoded = json_decode($prog, true);
+                            $completedExercises = is_array($decoded) ? count($decoded) : 0;
+                        }
                         
                         $percent = $totalExercises > 0 ? ($completedExercises / $totalExercises) * 100 : 0;
                         $percent = round($percent);
@@ -497,10 +505,11 @@
                         // Colors
                         $raceColor = 'secondary';
                         $raceName = 'ESTÁNDAR';
-                        if (str_starts_with($training->title, 'Saiyan')) { $raceColor = 'warning'; $raceName = 'CLASE SAIYAN'; }
-                        elseif (str_starts_with($training->title, 'Namek')) { $raceColor = 'success'; $raceName = 'CLASE NAMEK'; }
-                        elseif (str_starts_with($training->title, 'Frost')) { $raceColor = 'info'; $raceName = 'CLASE FROST'; }
-                        elseif (str_starts_with($training->title, 'Human')) { $raceColor = 'primary'; $raceName = 'CLASE HUMANA'; }
+                        $tTitle = strtoupper($training->title);
+                        if (str_contains($tTitle, 'SAIYAN')) { $raceColor = 'warning'; $raceName = 'CLASE SAIYAN'; }
+                        elseif (str_contains($tTitle, 'NAMEK')) { $raceColor = 'success'; $raceName = 'CLASE NAMEK'; }
+                        elseif (str_contains($tTitle, 'FROST')) { $raceColor = 'info'; $raceName = 'CLASE FROST'; }
+                        elseif (str_contains($tTitle, 'HUMAN') || str_contains($tTitle, 'HUMANA')) { $raceColor = 'primary'; $raceName = 'CLASE HUMANA'; }
                     @endphp
 
                     <div class="col-md-6 col-lg-4">

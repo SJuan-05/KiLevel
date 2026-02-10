@@ -61,23 +61,22 @@ class User extends Authenticatable
     public function activeMission()
     {
         return $this->belongsToMany(Mission::class, 'user_mission')
-            ->where('type', 'daily') // Only Daily Protocols (Removed alias 'missions.')
+            ->where('missions.type', 'daily') 
             ->where(function($q) {
                 $q->where('user_mission.expires_at', '>', now())
                   ->orWhereNull('user_mission.expires_at');
             })
             ->wherePivot('completed', false)
             ->withPivot('id', 'completed', 'expires_at', 'training_id', 'exercises_progress')
-            ->orderByPivot('created_at', 'desc'); // Get the most recently assigned one
+            ->orderByPivot('created_at', 'desc');
     }
 
     public function activePrograms()
     {
         return $this->belongsToMany(Mission::class, 'user_mission')
-            ->where('type', 'program') // Only Programs (Removed alias 'missions.')
-            // ->wherePivot('expires_at', '>', now()) // Programs usually don't expire or have long expiry
+            ->where('missions.type', 'program') 
             ->wherePivot('completed', false)
-            ->withPivot('id', 'completed', 'expires_at', 'training_id', 'exercises_progress') // Include pivot ID for deletion
+            ->withPivot('id', 'completed', 'expires_at', 'training_id', 'exercises_progress') 
             ->orderByPivot('created_at', 'desc');
     }
 
