@@ -2,81 +2,56 @@
 
 @section('content')
     @php
-        // Detect Race/Type
-        // Detect Race/Type
-        $title = $training->title;
-        $isProgram = str_contains($title, 'CLASE');
-        $raceColor = 'warning'; // Default
-        $raceName = 'GUERRERO';
+        // Detect Race colors again
+        $title = strtoupper($training->title);
+        $raceColor = 'warning'; // Default Gold for daily/generic
         
-        if (str_contains($title, 'SAIYAN')) { $raceColor = 'warning'; $raceName = 'RAZA SAIYAN'; }
-        elseif (str_contains($title, 'NAMEK')) { $raceColor = 'success'; $raceName = 'RAZA NAMEKIANA'; }
-        elseif (str_contains($title, 'FROST')) { $raceColor = 'info'; $raceName = 'RAZA DE FROST'; }
-        elseif (str_contains($title, 'HUMANA')) { $raceColor = 'primary'; $raceName = 'RAZA HUMANA'; }
+        if (str_contains($title, 'SAIYAN')) { $raceColor = 'warning'; }
+        elseif (str_contains($title, 'NAMEK')) { $raceColor = 'success'; }
+        elseif (str_contains($title, 'FROST')) { $raceColor = 'info'; }
+        elseif (str_contains($title, 'HUMAN') || str_contains($title, 'HUMANA')) { $raceColor = 'primary'; }
 
-        // Adjust accent color based on race
         $accent = "var(--bs-$raceColor)";
     @endphp
 
     <style>
-        /* --- GLOBAL --- */
         body {
-            background-color: #030303;
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)),
-                url('https://images.hdqwalls.com/download/hyperbolic-time-chamber-dragon-ball-z-4k-5y-1920x1080.jpg');
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center;
+            background-color: #050505;
             color: #fff;
+            background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.95)), url('https://w.wallhaven.cc/full/wy/wallhaven-wy2j6r.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
 
-        /* --- HEADER --- */
-        .training-hero {
-            text-align: center;
+        .program-hero {
             padding: 80px 20px 60px;
-            background: radial-gradient(circle at center, rgba(var(--bs-{{ $raceColor }}-rgb), 0.1) 0%, rgba(0,0,0,0) 70%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 40px;
+            background: radial-gradient(circle at top, rgba(var(--bs-{{$raceColor}}-rgb), 0.15), transparent 70%);
+            text-align: center;
         }
 
-        .hero-title {
+        .program-title {
             font-size: 3.5rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 30px {{ $accent }};
-            color: #fff;
-        }
-
-        .hero-desc {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .race-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
             margin-bottom: 20px;
-            padding: 8px 25px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid {{ $accent }};
-            color: {{ $accent }};
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 3px;
-            border-radius: 50px;
-            box-shadow: 0 0 15px rgba(var(--bs-{{ $raceColor }}-rgb), 0.3);
+            letter-spacing: 2px;
+            text-shadow: 0 0 40px rgba(var(--bs-{{$raceColor}}-rgb), 0.5);
         }
 
-        /* --- EXERCISES GRID --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- PRETTY CARD DESIGN --- */
         .exercise-card {
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(20,20,20,0.85);
+            border: 1px solid rgba(255,255,255,0.05);
             border-left: 4px solid {{ $accent }};
             border-radius: 12px;
             padding: 25px;
@@ -85,30 +60,29 @@
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
         .exercise-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border-color: rgba(255, 255, 255, 0.3);
+            border-left-color: {{ $accent }};
         }
 
         .exercise-card.completed {
-            background: rgba(var(--bs-{{ $raceColor }}-rgb), 0.1);
-            border-color: {{ $accent }};
-        }
-
-        .exercise-card.completed .check-icon {
-            opacity: 1;
-            transform: scale(1);
+            background: rgba(var(--bs-{{$raceColor}}-rgb), 0.1);
+            border: 1px solid {{ $accent }};
+            border-left: 4px solid {{ $accent }};
         }
 
         .exercise-name {
             font-size: 1.4rem;
             font-weight: 800;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-transform: uppercase;
+            padding-right: 30px; /* Space for circle */
         }
 
         .exercise-meta {
@@ -127,15 +101,15 @@
         
         .meta-item i { color: {{ $accent }}; }
 
-        /* Check Circle */
+        /* CIRCLE INDICATOR */
         .check-circle {
             width: 24px;
             height: 24px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 25px;
+            right: 25px;
             transition: all 0.3s;
         }
 
@@ -145,141 +119,137 @@
             box-shadow: 0 0 10px {{ $accent }};
         }
 
-        /* --- FINISH BUTTON --- */
-        .finish-container {
+        /* --- BUTTONS --- */
+        .finish-area {
             text-align: center;
-            margin-top: 60px;
-            margin-bottom: 100px;
+            padding: 60px 0 100px;
         }
-        
-        .btn-finish {
+
+        .btn-finish-lg {
             background: linear-gradient(45deg, {{ $accent }}, #fff);
             color: #000;
             border: none;
-            padding: 18px 60px;
+            padding: 20px 80px;
             font-size: 1.5rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
             border-radius: 50px;
-            box-shadow: 0 10px 40px rgba(var(--bs-{{ $raceColor }}-rgb), 0.4);
-            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(var(--bs-{{$raceColor}}-rgb), 0.3);
+            transition: all 0.4s;
+            cursor: pointer;
             opacity: 0.5;
             pointer-events: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .btn-finish.active {
-            transform: scale(1.1);
-            opacity: 1;
-            pointer-events: auto;
-            animation: pulseBtn 2s infinite;
+            transform: scale(0.95);
         }
         
+        .btn-finish-lg.ready {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+            animation: pulseBtn 2s infinite;
+        }
+
         @keyframes pulseBtn {
-            0% { box-shadow: 0 0 0 0 rgba(var(--bs-{{ $raceColor }}-rgb), 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(var(--bs-{{ $raceColor }}-rgb), 0); }
-            100% { box-shadow: 0 0 0 0 rgba(var(--bs-{{ $raceColor }}-rgb), 0); }
+            0% { box-shadow: 0 0 0 0 rgba(var(--bs-{{$raceColor}}-rgb), 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(var(--bs-{{$raceColor}}-rgb), 0); }
+            100% { box-shadow: 0 0 0 0 rgba(var(--bs-{{$raceColor}}-rgb), 0); }
         }
 
     </style>
 
-    <!-- HERO SECTION -->
-    <div class="training-hero">
-        <a href="{{ route('dashboard') }}" class="btn btn-outline-light rounded-pill position-absolute start-0 top-0 m-4" style="z-index: 100;">
-            <i class="bi bi-arrow-left me-2"></i> VOLVER AL INICIO
-        </a>
-
-        <div class="race-badge">
-            <i class="bi bi-person-bounding-box"></i>
-            {{ $isProgram ? $raceName : 'PROTOCOLO ' . strtoupper($training->difficulty) }}
-        </div>
-        <h1 class="hero-title">{{ $training->title }}</h1>
-        <p class="hero-desc">{{ $training->description }}</p>
+    <div class="program-hero">
+        <h1 class="program-title" style="margin-top: 20px;">{{ $training->title }}</h1>
+        <p class="lead text-white-50">{{ $training->description }}</p>
     </div>
 
-    <div class="container">
-        <!-- FORMULARIO OCULTO -->
-        <form id="complete-form" action="{{ route('training.complete', $training->id) }}" method="POST">
-            @csrf
-            
-            <!-- EJERCICIOS GRID -->
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                @if(is_array($training->exercises))
-                    @foreach($training->exercises as $index => $exercise)
-                        <div class="col">
-                            <div class="exercise-card" onclick="toggleExercise({{ $index }})" id="card-{{ $index }}">
-                                <div class="check-circle"></div>
-                                <h3 class="exercise-name">{{ $exercise['name'] }}</h3>
-                                <div class="exercise-meta">
-                                    <div class="meta-item">
-                                        <i class="bi bi-repeat"></i> {{ $exercise['reps'] }}
-                                    </div>
-                                    <div class="meta-item">
-                                        <i class="bi bi-stopwatch"></i> {{ $exercise['rest'] }}
-                                    </div>
-                                </div>
-                                <input type="checkbox" name="exercises[]" 
-                                       value="{{ $exercise['name'] }}" 
-                                       id="check-{{ $index }}" 
-                                       class="d-none exercise-check">
+    <form action="{{ route('training.complete', $training->id) }}" method="POST">
+        @csrf
+        <div class="grid-container">
+            @if(is_array($training->exercises))
+                @foreach($training->exercises as $index => $exercise)
+                    @php $isCompleted = in_array((string)$index, $currentProgress) || in_array((int)$index, $currentProgress); @endphp
+                    <div class="exercise-card {{ $isCompleted ? 'completed' : '' }}" id="card-{{$index}}" onclick="toggleCard({{$index}})">
+                        <div class="check-circle"></div>
+                        <h3 class="exercise-name">{{ $exercise['name'] }}</h3>
+                        <div class="exercise-meta">
+                            <div class="meta-item">
+                                <i class="bi bi-repeat"></i> {{ $exercise['reps'] }}
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-stopwatch"></i> {{ $exercise['rest'] }}
                             </div>
                         </div>
-                    @endforeach
-                @else
-                    <div class="col-12 text-center text-muted">No hay ejercicios listados.</div>
-                @endif
-            </div>
+                        <input type="checkbox" name="exercises[]" value="{{ $exercise['name'] }}" id="chk-{{$index}}" class="d-none card-check" {{ $isCompleted ? 'checked' : '' }}>
+                    </div>
+                @endforeach
+            @endif
+        </div>
 
-            <!-- ACTION BUTTON -->
-            <div class="finish-container">
-                <button type="submit" id="btn-finish" class="btn-finish">
-                    <i class="bi bi-trophy-fill me-2"></i> COMPLETAR ENTRENAMIENTO
-                </button>
-            </div>
+        <div class="finish-area">
+            <button type="submit" id="main-finish-btn" class="btn-finish-lg mb-5">FINALIZAR ENTRENAMIENTO</button>
             
-        </form>
-    </div>
+            <div class="d-flex justify-content-center">
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-lg px-5 shadow-lg" style="border-radius: 50px; background: rgba(255,255,255,0.05); backdrop-filter: blur(5px);">
+                    <i class="bi bi-house-door"></i> REGRESAR AL INICIO
+                </a>
+            </div>
+        </div>
+    </form>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        function toggleExercise(index) {
-            const checkbox = document.getElementById('check-' + index);
-            const card = document.getElementById('card-' + index);
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAll(false); // Check initial state without confetti
+        });
+
+        function toggleCard(id) {
+            const card = document.getElementById('card-' + id);
+            const chk = document.getElementById('chk-' + id);
             
-            checkbox.checked = !checkbox.checked;
+            chk.checked = !chk.checked;
             
-            if(checkbox.checked) {
+            if(chk.checked) {
                 card.classList.add('completed');
             } else {
                 card.classList.remove('completed');
             }
             
-            checkCompletion();
+            // Save progress via AJAX
+            fetch("{{ route('training.toggle', $training->id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ index: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Progress saved:', data);
+            })
+            .catch(error => console.error('Error saving progress:', error));
+
+            checkAll(true);
         }
-        
-        function checkCompletion() {
-            const checkboxes = document.querySelectorAll('.exercise-check');
-            const total = checkboxes.length;
-            let checked = 0;
+
+        function checkAll(triggerConfetti = true) {
+            const all = document.querySelectorAll('.card-check');
+            let complete = true;
+            all.forEach(c => { if(!c.checked) complete = false; });
             
-            checkboxes.forEach(cb => { if(cb.checked) checked++; });
+            const btn = document.getElementById('main-finish-btn');
             
-            const btn = document.getElementById('btn-finish');
-            
-            // Check if user has checked at least one (since logic currently requires ALL, let's keep it ALL)
-            if(checked === total && total > 0) {
-                btn.classList.add('active');
-                
-                // Mini conffeti al desbloquear
-                confetti({
-                    particleCount: 50,
-                    spread: 60,
-                    origin: { y: 0.8 },
-                    colors: ['{{ $raceColor == "warning" ? "#ffc107" : ($raceColor == "success" ? "#00ff41" : "#00d2ff") }}']
-                });
+            if(complete) {
+                btn.classList.add('ready');
+                if (triggerConfetti) {
+                    confetti({
+                        particleCount: 50,
+                        spread: 70,
+                        origin: { y: 0.9 }
+                    });
+                }
             } else {
-                btn.classList.remove('active');
+                btn.classList.remove('ready');
             }
         }
     </script>

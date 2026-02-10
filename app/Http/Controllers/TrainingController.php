@@ -46,11 +46,7 @@ class TrainingController extends Controller
             $currentProgress = $mission->pivot->exercises_progress ? json_decode($mission->pivot->exercises_progress, true) : [];
         }
 
-        if ($isProgram) {
-            return view('training.show_program', compact('training', 'isProgram', 'currentProgress'));
-        } else {
-            return view('training.show_daily', compact('training', 'currentProgress'));
-        }
+        return view('training.show', compact('training', 'isProgram', 'currentProgress'));
     }
 
     public function selectRace(Request $request)
