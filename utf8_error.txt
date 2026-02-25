@@ -1,0 +1,24 @@
+
+  Dropping all tables  4.52ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`cache`, `kilevel5`.`0`.`cache_locks`, `kilevel5`.`0`.`factions`, `kilevel5`...' at line 1 (Connection: mysql, SQL: drop table `kilevel5`.`0`.`cache`, `kilevel5`.`0`.`cache_locks`, `kilevel5`.`0`.`factions`, `kilevel5`.`0`.`failed_jobs`, `kilevel5`.`0`.`friendships`, `kilevel5`.`0`.`jobs`, `kilevel5`.`0`.`job_batches`, `kilevel5`.`0`.`levels`, `kilevel5`.`0`.`messages`, `kilevel5`.`0`.`migrations`, `kilevel5`.`0`.`missions`, `kilevel5`.`0`.`password_reset_tokens`, `kilevel5`.`0`.`rewards`, `kilevel5`.`0`.`sessions`, `kilevel5`.`0`.`trainings`, `kilevel5`.`0`.`users`, `kilevel5`.`0`.`user_mission`, `kilevel5`.`0`.`user_reward`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:824
+    820???                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821???                 );
+    822???             }
+    823??? 
+  ??? 824???             throw new QueryException(
+    825???                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826???             );
+    827???         }
+    828???     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:564
+      PDOException::("SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '.`cache`, `kilevel5`.`0`.`cache_locks`, `kilevel5`.`0`.`factions`, `kilevel5`...' at line 1")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:564
+      PDO::prepare("drop table `kilevel5`.`0`.`cache`, `kilevel5`.`0`.`cache_locks`, `kilevel5`.`0`.`factions`, `kilevel5`.`0`.`failed_jobs`, `kilevel5`.`0`.`friendships`, `kilevel5`.`0`.`jobs`, `kilevel5`.`0`.`job_batches`, `kilevel5`.`0`.`levels`, `kilevel5`.`0`.`messages`, `kilevel5`.`0`.`migrations`, `kilevel5`.`0`.`missions`, `kilevel5`.`0`.`password_reset_tokens`, `kilevel5`.`0`.`rewards`, `kilevel5`.`0`.`sessions`, `kilevel5`.`0`.`trainings`, `kilevel5`.`0`.`users`, `kilevel5`.`0`.`user_mission`, `kilevel5`.`0`.`user_reward`")
+

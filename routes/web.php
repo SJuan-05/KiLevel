@@ -13,13 +13,6 @@ use App\Http\Controllers\SocialController;
 |--------------------------------------------------------------------------
 */
 
-// --- RUTA RAÍZ ---
-// Redirigimos al login por defecto (o al home si lo tuvieras)
-// --- RUTA RAÍZ ---
-// Redirigimos al login por defecto
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 
 
 // --- ZONA PÚBLICA / MIXTA ---
@@ -120,6 +113,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/social/add/{id}', [SocialController::class, 'addFriend'])->name('social.add');
     Route::post('/social/accept/{id}', [SocialController::class, 'acceptFriend'])->name('social.accept');
     Route::post('/social/remove/{id}', [SocialController::class, 'removeFriend'])->name('social.remove');
+
+    // SOPORTE / CONTACTO
+    Route::get('/support', [App\Http\Controllers\SupportController::class, 'index'])->name('support.index');
+    Route::post('/support/submit', [App\Http\Controllers\SupportController::class, 'submit'])->name('support.submit');
 
     // 8. SISTEMA DE CHAT
     Route::get('/chat/clan', [App\Http\Controllers\ChatController::class, 'fetchClanMessages'])->name('chat.clan.fetch');

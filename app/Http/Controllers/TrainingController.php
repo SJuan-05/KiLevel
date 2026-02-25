@@ -98,9 +98,9 @@ class TrainingController extends Controller
         }
 
         if ($mission && $training) {
-            // Cleanup: Detach ONLY previous uncompleted programs, keeping daily protocols intact
-            $currentPrograms = $user->activePrograms()->pluck('missions.id');
-            $user->missions()->detach($currentPrograms);
+            // Cleanup: Removed detachment to allow multiple active programs simultaneously
+            // $currentPrograms = $user->activePrograms()->pluck('missions.id');
+            // $user->missions()->detach($currentPrograms);
 
             $user->missions()->attach($mission->id, [
                 'expires_at' => Carbon::now()->addYears(10),
@@ -186,25 +186,8 @@ class TrainingController extends Controller
         // 4. Actualizar Usuario (Sumar XP y Zeni)
         $oldLevel = $user->level;
         
-        // Zeni calcul: Base 50 + (10 * Nivel de Dificultad)
-        // Dificultad: Puede estar en Training o Mission
         $difficulty = $training->difficulty ?? 'easy';
-        $zeniMultiplier = match($difficulty) {
-            'easy' => 1,
-            'medium' => 2,
-            'hard' => 3,
-            'god' => 5,
-            default => 1
-        };
-        $zeniGain = 50 * $zeniMultiplier;
-        
-        // Bonus por Plan
-        $planMultiplier = match($user->plan) {
-            'kaio' => 1.5,
-            'whis' => 2,
-            default => 1
-        };
-        $zeniGain = (int) ($zeniGain * $planMultiplier);
+        $zeniGain = $user->calculateZeniReward($difficulty);
 
         $user->addXp($xpGain);
         $finalXp = (int) ($xpGain * ($user->xp_multiplier ?? 1.0));

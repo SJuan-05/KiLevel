@@ -395,6 +395,7 @@
                                 <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="bi bi-person-fill me-2"></i> Perfil</a></li>
                                 <li><hr class="dropdown-divider border-secondary opacity-25"></li>
                                 <li><a class="dropdown-item" href="{{ route('register.plans') }}"><i class="bi bi-stars me-2"></i> Mejorar Plan</a></li>
+                                <li><a class="dropdown-item" href="{{ route('support.index') }}"><i class="bi bi-headset me-2 text-warning"></i> Soporte</a></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                                         @csrf
